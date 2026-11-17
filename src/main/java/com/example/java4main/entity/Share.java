@@ -1,6 +1,7 @@
 package com.example.java4main.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class Share {
     @JoinColumn(name = "VideoId", nullable = false)
     private Video video;
 
+    @Nationalized
     @Column(name = "Emails", length = 255, nullable = false)
     private String emails;
 

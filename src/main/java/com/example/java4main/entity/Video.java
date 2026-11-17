@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @EqualsAndHashCode(exclude = {"favorites", "shares", "uploader"})
 public class Video {
     private static final Pattern YOUTUBE_ID = Pattern.compile(
-            "(?:[?&]v=|youtu\\.be/|/embed/|/vi/)([A-Za-z0-9_-]{11})");
+            "(?:[?&]v=|youtu\\.be/|/embed/|/shorts/|/vi/)([A-Za-z0-9_-]{11})");
 
     @Id
     @Nationalized
