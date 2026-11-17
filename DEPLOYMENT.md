@@ -50,3 +50,14 @@ The URL is illustrative. Deployment has not been performed or verified from this
 - Password hashing has been implemented, but unrestricted public registration still requires additional security review, input validation, CSRF mitigation, WebSocket authentication, spam controls and monitoring.
 
 For the internship CV, describe this truthfully as a **Java Servlet/JSP video-sharing and channel-management platform with YouTube embedding** rather than a native video-hosting service.
+
+## Temporary PostgreSQL option (if Azure SQL is unavailable)
+
+A separate PostgreSQL instance can host the **metadata only** for this YouTube-link application. Set the following private environment values in the hosting dashboard:
+
+- `DB_URL`: `jdbc:postgresql://YOUR-PG-HOST:5432/YOUR-DB?sslmode=require`
+- `DB_USER`: PostgreSQL username
+- `DB_PASSWORD`: PostgreSQL password
+- `DB_SCHEMA_MODE`: `update` (only for a brand-new empty demo database; then change to `validate`)
+
+The application selects PostgreSQLDialect automatically for PostgreSQL URLs. It continues to accept the original SQL Server JDBC URL and SQL Server dialect. Video files still play from YouTube; only metadata is stored. The free hosting provider may require payment-method verification even for a free service. PostgreSQL tables start empty; this does **not** import your existing PolyOE SQL Server data.
