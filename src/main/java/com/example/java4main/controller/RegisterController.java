@@ -23,10 +23,11 @@ public class RegisterController extends HttpServlet {
         String id = value(request, "id");
         String password = request.getParameter("password");
         String fullname = value(request, "fullname");
+        String confirmed = request.getParameter("confirmPassword");
         String email = value(request, "email").toLowerCase();
         if (!id.matches("[A-Za-z0-9_]{3,20}") || fullname.isBlank() || fullname.length() > 50
                 || email.length() > 50 || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
-                || password == null || password.length() < 8) {
+                || password == null || password.length() < 8 || !password.equals(confirmed)) {
             request.setAttribute("message", "Vui long nhap ID 3-20 ky tu, email hop le va mat khau it nhat 8 ky tu.");
             doGet(request, response);
             return;
