@@ -51,6 +51,10 @@ public class AdminUserController extends HttpServlet {
             }
 
             if ("create".equals(action)) {
+                if (user.getPassword() == null || user.getPassword().length() < 8) {
+                    response.sendRedirect(request.getContextPath() + "/admin/user");
+                    return;
+                }
                 userService.create(user);
             } else if ("update".equals(action)) {
                 userService.update(user);

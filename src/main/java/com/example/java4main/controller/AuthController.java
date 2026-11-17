@@ -50,7 +50,9 @@ public class AuthController extends HttpServlet {
 
         User user = userService.login(id, password);
 
-        if (user != null && user.getPassword().equals(password)) { // So sánh mật khẩu đã hash nếu có
+        if (user != null) { // UserService has already verified the supplied password
+            request.getSession();
+            request.changeSessionId(); // Prevent session fixation after sign-in
             SessionUtil.set(request, "currentUser", user);
             
             // Xử lý Remember Me
