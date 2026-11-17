@@ -49,7 +49,7 @@ src/main/
 
 Requirements: **JDK 11+**, **Tomcat 10.1**, **SQL Server** with database `PolyOE`, and the four tables mapped by the entities.
 
-1. Configure a reachable SQL Server and create the schema before running. Hibernate uses `hbm2ddl.auto=validate`, so missing tables are not created automatically.
+1. Prepare a SQL Server or Azure SQL database and run [`database/schema.sql`](database/schema.sql). This creates the four mapped tables (without seed accounts). Hibernate uses `hbm2ddl.auto=validate`, so the schema must exist first.
 2. Set environment variables (PowerShell example):
 
 ```powershell
@@ -72,7 +72,7 @@ $env:DB_PASSWORD = 'your-db-password'
 - Credentials are read from `DB_URL`, `DB_USER`, and `DB_PASSWORD` in the current source. **Rotate any database password previously committed to Git**, as Git history retains old credentials.
 - User passwords are currently stored/compared as plain text; implement password hashing and additional security checks before accepting real public accounts.
 - `ShareController` still references a localhost URL; replace this with the deployment base URL.
-- No SQL schema/seed script, Dockerfile or public demo URL is provided yet.
+- The repository includes [`database/schema.sql`](database/schema.sql), [`Dockerfile`](Dockerfile) and [`render.yaml`](render.yaml). There is still **no verified live deployment URL**. Read [`DEPLOYMENT.md`](DEPLOYMENT.md) before deploying.
 - The WebSocket chat is a prototype, with production authentication, rate limiting and moderation still needed.
 - The project currently links to YouTube media/thumbnails and does **not** contain end-user video channels or file-upload/transcoding functionality.
 
