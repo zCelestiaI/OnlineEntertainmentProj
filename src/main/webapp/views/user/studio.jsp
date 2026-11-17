@@ -19,25 +19,22 @@
 <label class="form-label">Giới thiệu kênh</label>
 <textarea class="form-control mb-3" name="channelDescription" maxlength="500" rows="4"><c:out value="${owner.channelDescription}"/></textarea>
 <button class="btn btn-outline-primary w-100">Lưu thông tin kênh</button></form></div>
-<div class="card shadow-sm p-4"><h2 class="h6">Tải video trực tiếp</h2>
-<c:choose><c:when test="${cloudinaryConfigured}"><span class="badge text-bg-success">Cloudinary đã kết nối</span></c:when>
-<c:otherwise><p class="small text-muted">Chưa cấu hình Cloudinary. Hiện bạn có thể đăng bằng link YouTube; xem DEPLOYMENT.md để bật tải file.</p></c:otherwise></c:choose>
-<p class="small text-muted mb-0">File MP4 / WebM / MOV, tối đa 15 MB.</p></div></aside>
+<div class="card shadow-sm p-4"><h2 class="h6">Cơ chế đăng video</h2>
+<p class="small text-muted mb-2">Dán link YouTube để hệ thống tự tạo ảnh thumbnail và trình phát video. Không cần tải file hay lưu trữ video trên server.</p>
+<p class="small text-muted mb-0">Hỗ trợ YouTube Watch, Shorts, Live, youtu.be.</p></div></aside>
 <div class="col-lg-8"><section class="card shadow-sm p-4 mb-4">
 <div class="d-flex justify-content-between align-items-center"><h2 class="h5">${empty editing ? 'Đăng video mới' : 'Chỉnh sửa video'}</h2>
 <c:if test="${not empty editing}"><a href="${pageContext.request.contextPath}/studio" class="btn btn-sm btn-light">Hủy sửa</a></c:if></div>
-<form method="post" action="${pageContext.request.contextPath}/studio" enctype="multipart/form-data">
+<form method="post" action="${pageContext.request.contextPath}/studio" >
 <input type="hidden" name="action" value="save"><input type="hidden" name="id" value="<c:out value='${editing.id}'/>">
 <label class="form-label">Tiêu đề</label><input class="form-control mb-3" name="title" maxlength="255" required value="<c:out value='${editing.title}'/>">
 <label class="form-label">Mô tả</label><textarea class="form-control mb-3" name="description" maxlength="20000" rows="3"><c:out value="${editing.description}"/></textarea>
-<label class="form-label">Link video YouTube (không bắt buộc nếu tải file)</label>
+<label class="form-label">Link video YouTube</label>
 <input class="form-control mb-3" type="url" name="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
-<label class="form-label">Hoặc chọn file video</label>
-<input class="form-control mb-3" type="file" name="videoFile" accept="video/mp4,video/webm,video/quicktime" ${cloudinaryConfigured ? '' : 'disabled'}>
-<label class="form-label">Ảnh bìa (URL HTTPS, không bắt buộc)</label><input class="form-control mb-3" type="url" name="poster" maxlength="255" placeholder="https://..." value="<c:out value='${editing.poster}'/>">
+<label class="form-label">Link ảnh thumbnail tùy chọn (để trống sẽ tự lấy từ YouTube)</label><input class="form-control mb-3" type="url" name="poster" maxlength="255" placeholder="https://..." >
 <label class="form-check mb-3"><input class="form-check-input" type="checkbox" name="active" ${empty editing or editing.active ? 'checked' : ''}> <span class="form-check-label">Công khai video</span></label>
 <button class="btn btn-primary" type="submit">${empty editing ? 'Đăng video' : 'Lưu thay đổi'}</button>
-<c:if test="${not empty editing}"><span class="small text-muted ms-2">Không nhập nguồn mới để giữ video hiện tại.</span></c:if>
+<c:if test="${not empty editing}"><span class="small text-muted ms-2">Để trống link YouTube khi sửa để giữ video hiện tại; nhập link mới sẽ tự cập nhật thumbnail.</span></c:if>
 </form></section>
 <section class="card shadow-sm p-4"><h2 class="h5">Video của bạn</h2>
 <c:if test="${empty videos}"><p class="text-muted">Kênh chưa có video.</p></c:if>
