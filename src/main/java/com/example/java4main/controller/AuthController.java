@@ -2,6 +2,7 @@ package com.example.java4main.controller;
 
 import com.example.java4main.entity.User;
 import com.example.java4main.service.UserService;
+import com.example.java4main.utils.CookieUtil;
 import com.example.java4main.utils.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -25,13 +26,14 @@ public class AuthController extends HttpServlet {
         String uri = request.getServletPath();
 
         if (uri.equals("/login")) {
-            // Fix: Changed back to /views/user/login.jsp
             request.getRequestDispatcher("/views/user/login.jsp")
                     .forward(request, response);
             return;
         }
 
         if (uri.equals("/logout")) {
+            // Xóa cookie "rememberMe" khi logout
+            CookieUtil.remove("rememberMe", response);
             SessionUtil.invalidate(request);
             response.sendRedirect(request.getContextPath() + "/home");
         }
@@ -44,22 +46,29 @@ public class AuthController extends HttpServlet {
 
         String id = request.getParameter("id");
         String password = request.getParameter("password");
+        boolean rememberMe = request.getParameter("rememberMe") != null;
 
         User user = userService.login(id, password);
 
-        if (user == null) {
+        if (user != null && user.getPassword().equals(password)) { // So sánh mật khẩu đã hash nếu có
+            SessionUtil.set(request, "currentUser", user);
+            
+            // Xử lý Remember Me
+            if (rememberMe) {
+                CookieUtil.add("rememberMe", user.getId(), 24 * 7, response); // Lưu trong 7 ngày
+            } else {
+                CookieUtil.remove("rememberMe", response);
+            }
+            
+            if (user.isAdmin()) {
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/home");
+            }
+        } else {
             request.setAttribute("message", "Sai tài khoản hoặc mật khẩu.");
             request.getRequestDispatcher("/views/user/login.jsp")
                     .forward(request, response);
-            return;
-        }
-
-        SessionUtil.set(request, "currentUser", user);
-        
-        if (user.isAdmin()) {
-            response.sendRedirect(request.getContextPath() + "/admin/dashboard");
-        } else {
-            response.sendRedirect(request.getContextPath() + "/home");
         }
     }
 }

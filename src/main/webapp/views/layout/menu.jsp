@@ -40,6 +40,7 @@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/home">Home</a></li>
                 <c:if test="${not empty currentUser}">
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/chat">Community Chat</a></li>
                     <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/favorite">My Favorites</a></li>
                     <c:if test="${currentUser.admin}">
                         <li class="nav-item border-start ms-2 ps-2">

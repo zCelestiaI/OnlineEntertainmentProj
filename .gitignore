@@ -37,3 +37,14 @@ build/
 
 ### Mac OS ###
 .DS_Store
+# Local project metadata and build output
+.idea/
+out/
+target/
+*.war
+*.class
+# Database backups and secrets
+.env
+.env.*
+*.bak
+*.bacpac

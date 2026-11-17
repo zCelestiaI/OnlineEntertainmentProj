@@ -1,159 +1,81 @@
-# Online Entertainment
+# Online Entertainment – Java Web
 
-A Java web application developed as an academic project. It provides a video-browsing experience for users and an administration area for managing videos, users, and engagement reports.
+An academic video-entertainment web application with user-facing video browsing, account management, favorites, an administrator dashboard, and a community-chat demonstration.
 
-> **Status:** Source-code portfolio project. The `master` branch has **not** been verified as a production-ready, publicly hosted application. A SQL Server database and additional configuration are required to run it.
+**Status:** source-code portfolio project. This is **not yet a public, production-ready video-upload platform**. Videos are currently managed by the administrator; user-created channels, direct video uploads and video storage/transcoding are not implemented in this version.
 
-## Features
+## Features implemented
 
-### User-facing features
-- Browse active videos with search and pagination (six items per page in the main listing).
-- Register, log in, log out, and manage user profile/password.
-- View video details and track views.
-- Like or unlike videos and view a personal favorites list.
-- Submit video-sharing information, which is recorded for reporting.
+- Registration, login/logout, user profile, password-management pages and session-based Admin/User authorization.
+- Search and pagination on the public video listing; view video details and record view counts.
+- Like/unlike videos and browse a user's favorites.
+- Admin CRUD for videos and user accounts.
+- Reports for favorites, users who liked videos, and recorded shares.
+- WebSocket community-chat prototype: `ChatController`, `JsonChatServerEndpoint` and `json-chat.js` are included in the source tree. It is a prototype rather than a hardened production chat system.
+- Share-history recording. **Email sending is not implemented yet**: `EmailUtil.send()` prints a message in the console.
 
-### Administration
-- Role-based access to `/admin/*` routes through an authentication/authorization filter.
-- Manage video metadata, YouTube thumbnail URLs, visibility, and view counts.
-- Manage user accounts and distinguish administrator/user roles.
-- View reports on video favorites, users who liked videos, and video-sharing history.
+## Tech stack
 
-## Technology stack
-
-| Layer | Technology |
+| Component | Technology |
 | --- | --- |
-| Language | Java 11 (Maven compiler target) |
-| Web backend | Jakarta Servlet 6.0, JSP, JSTL |
-| Persistence | Hibernate ORM 6.4, Jakarta Persistence (JPA) |
-| Database | Microsoft SQL Server, Microsoft JDBC Driver |
-| Build | Maven Wrapper, Maven WAR Plugin |
-| Deployment target | Apache Tomcat **10.1** (compatible with Servlet 6.0) |
-| UI | JSP and Bootstrap (CDN referenced in views) |
+| Server-side | Java 11, Jakarta Servlet 6, JSP/JSTL |
+| Persistence | Hibernate 6.4 / JPA |
+| Database | Microsoft SQL Server |
+| Build & packaging | Maven, WAR |
+| Web server | Apache Tomcat 10.1 |
+| Frontend | Bootstrap, JavaScript |
+| Real-time prototype | Jakarta WebSocket, Jackson |
 
-This is a **traditional Java Servlet/JSP web application**, not a Spring Boot application.
+This application is **not Spring Boot**.
 
-## Repository structure
+## Source layout
 
 ```text
 src/main/
 ├── java/com/example/java4main/
-│   ├── controller/       # Routes for users and administrators
-│   ├── dao/              # Data access interfaces and implementations
-│   ├── dto/              # Data transfer objects
-│   ├── entity/           # JPA entity mappings
-│   ├── filter/           # Authentication, admin access, encoding
-│   ├── listener/         # Application lifecycle
-│   ├── service/          # Business logic
-│   └── utils/            # JPA, session, cookies, email stub
-├── resources/META-INF/
-│   └── persistence.xml   # Database/JPA configuration
-└── webapp/
-    ├── index.jsp
-    ├── WEB-INF/web.xml
-    └── views/
-        ├── admin/
-        ├── layout/
-        └── user/
+│   ├── controller/     # Servlet controllers and administration
+│   ├── dao/            # Data access
+│   ├── dto/            # Transfer objects
+│   ├── entity/         # User, Video, Favorite, Share
+│   ├── filter/         # Login and role checks
+│   ├── service/        # Business operations
+│   ├── utils/          # JPA, session, cookie, email placeholder
+│   └── websocket/      # Community-chat prototype
+├── resources/META-INF/persistence.xml
+└── webapp/             # JSP views, JavaScript, WEB-INF
 ```
 
-## Run locally without IntelliJ
+## Running locally without IntelliJ
 
-### Prerequisites
+Requirements: **JDK 11+**, **Tomcat 10.1**, **SQL Server** with database `PolyOE`, and the four tables mapped by the entities.
 
-- JDK **11 or later**
-- Microsoft SQL Server
-- Apache Tomcat **10.1**
-- A SQL Server database named `PolyOE` with tables corresponding to the JPA entities (`Users`, `Video`, `Favorite`, `Share`)
-- Maven is optional because the repository includes Maven Wrapper
+1. Configure a reachable SQL Server and create the schema before running. Hibernate uses `hbm2ddl.auto=validate`, so missing tables are not created automatically.
+2. Set environment variables (PowerShell example):
 
-> **Database setup:** The project currently uses `hibernate.hbm2ddl.auto=validate`, so it **will not generate missing tables**. This repository does not currently include a database schema/seed SQL script. Prepare the schema before starting the application.
-
-### 1. Clone and build
-
-```bash
-git clone https://github.com/zCelestiaI/OnlineEntertainmentProj.git
-cd OnlineEntertainmentProj
+```powershell
+$env:DB_URL = 'jdbc:sqlserver://localhost:1433;databaseName=PolyOE;encrypt=true;trustServerCertificate=true'
+$env:DB_USER = 'your-db-user'
+$env:DB_PASSWORD = 'your-db-password'
 ```
 
-**Windows:**
+3. Package the application:
 
 ```powershell
 .\mvnw.cmd clean package
 ```
 
-**macOS/Linux:**
+4. Copy `target/Java4Main-1.0-SNAPSHOT.war` into Tomcat's `webapps/` directory. Start Tomcat and visit `http://localhost:8080/Java4Main-1.0-SNAPSHOT/home`.
 
-```bash
-./mvnw clean package
-```
+## Hosting and security notes
 
-The compiled application should be available at:
+- The app needs a database reachable by the remote Tomcat instance; `localhost` on a cloud host will **not** refer to your laptop.
+- Credentials are read from `DB_URL`, `DB_USER`, and `DB_PASSWORD` in the current source. **Rotate any database password previously committed to Git**, as Git history retains old credentials.
+- User passwords are currently stored/compared as plain text; implement password hashing and additional security checks before accepting real public accounts.
+- `ShareController` still references a localhost URL; replace this with the deployment base URL.
+- No SQL schema/seed script, Dockerfile or public demo URL is provided yet.
+- The WebSocket chat is a prototype, with production authentication, rate limiting and moderation still needed.
+- The project currently links to YouTube media/thumbnails and does **not** contain end-user video channels or file-upload/transcoding functionality.
 
-```text
-target/Java4Main-1.0-SNAPSHOT.war
-```
+## Portfolio
 
-### 2. Configure SQL Server locally
-
-Check `src/main/resources/META-INF/persistence.xml`. The current version points to a SQL Server instance at `localhost:1433` and uses hardcoded database credentials.
-
-**Do not reuse or publish the credentials currently committed in this repository.** Rotate the database password and move credentials to environment-based configuration before deploying the application publicly. Simply adding a file to `.gitignore` does not remove previously committed secrets from Git history.
-
-The database must be reachable from the machine running Tomcat. A remote server's `localhost` is **not** your laptop.
-
-### 3. Deploy the WAR to Tomcat 10.1
-
-Copy the generated WAR to Tomcat's `webapps` directory, optionally renaming it to `online-entertainment.war`.
-
-Start Tomcat using `bin/startup.bat` (Windows) or `bin/startup.sh` (Linux/macOS), then open:
-
-```text
-http://localhost:8080/online-entertainment/home
-```
-
-If you keep the original WAR filename, the context path will normally be `/Java4Main-1.0-SNAPSHOT` instead.
-
-## Public deployment: work still required
-
-Running locally without IntelliJ is different from making the app available at a public URL.
-
-A typical deployment path is:
-
-1. Fix credential handling, password storage, and other security issues before exposing the application on the internet.
-2. Provision a **remote SQL Server-compatible database** and create the required tables/data.
-3. Change JPA configuration to read DB URL, username, and password from environment variables.
-4. Package the WAR into a Docker image with **Tomcat 10.1**.
-5. Host the Docker web service on a provider such as Render, with a separate database service.
-6. Update absolute local links in the app (for example, `localhost:8080` in sharing) to use the actual request/public URL.
-7. Test routes, JSP assets, authentication, database access, and all interactive features after deployment.
-
-**The repository does not yet include a ready-to-deploy Dockerfile or a live demo URL.** Do not assume that uploading this repository alone will produce a working website.
-
-## Known limitations of this branch
-
-- **Credentials:** `persistence.xml` currently contains hardcoded database connection details. Replace and rotate them before hosting.
-- **Password security:** User passwords are compared directly in `UserService`; secure password hashing should be implemented before accepting real users.
-- **Email:** `EmailUtil.send()` is currently a console-output placeholder, not a real email-delivery integration.
-- **Sharing URL:** `ShareController` currently generates a `localhost:8080` link.
-- **Database initialization:** No SQL schema/seed script is tracked, while Hibernate schema mode is `validate`.
-- **Web assets:** A stylesheet under `/assets/css/style.css` is referenced in JSP, but the current tracked webapp tree does not contain that asset.
-- **Community chat:** A WebSocket chat interface appears in some separate project screenshots, but a chat endpoint/implementation is not present in the currently tracked `master` source tree.
-
-These notes distinguish existing code from features that need to be integrated or completed.
-
-## Portfolio use
-
-This repository demonstrates work with Java Servlet controllers, session-based authorization, DAO/service layers, JPA entity relationships, SQL Server, JSP views, and administrative reporting.
-
-For an internship portfolio, consider adding:
-- Screenshots or a short demo video of the running app.
-- An anonymized database initialization script.
-- A working public demo after completing deployment and security improvements.
-- A summary of **your own contributions** if this was a group project.
-
-## Author
-
-GitHub: [@zCelestiaI](https://github.com/zCelestiaI)
-
-Academic Java Web project for learning and portfolio purposes.
+Repository author: [@zCelestiaI](https://github.com/zCelestiaI). This project was developed for Java Web coursework and demonstrates Servlet routes, role checks, Hibernate persistence, DAO/service structure, and administrative reports.

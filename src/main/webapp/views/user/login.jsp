@@ -1,98 +1,48 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Online Entertainment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+    <jsp:include page="../layout/menu.jsp" />
 
-<jsp:include page="/views/layout/header.jsp"/>
-<jsp:include page="/views/layout/menu.jsp"/>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4 card p-4 shadow-sm border-0 rounded-4">
+                <h3 class="text-center mb-4 fw-bold text-primary">ĐĂNG NHẬP</h3>
 
-<div class="container mt-5">
+                <c:if test="${not empty message}">
+                    <div class="alert alert-danger py-2 small">${message}</div>
+                </c:if>
 
-    <div class="row justify-content-center">
-
-        <div class="col-md-5">
-
-            <div class="card shadow">
-
-                <div class="card-header text-center">
-
-                    <h3>Login</h3>
-
-                </div>
-
-                <div class="card-body">
-
-                    <form method="post"
-                          action="${pageContext.request.contextPath}/login">
-
-                        <div class="mb-3">
-
-                            <label>User ID</label>
-
-                            <input
-                                    type="text"
-                                    name="id"
-                                    class="form-control"
-                                    required>
-
-                        </div>
-
-                        <div class="mb-3">
-
-                            <label>Password</label>
-
-                            <input
-                                    type="password"
-                                    name="password"
-                                    class="form-control"
-                                    required>
-
-                        </div>
-
-                        <button class="btn btn-primary w-100">
-
-                            Login
-
-                        </button>
-
-                    </form>
-
-                    <c:if test="${message!=null}">
-
-                        <div class="alert alert-danger mt-3">
-
-                                ${message}
-
-                        </div>
-
-                    </c:if>
-
-                    <div class="text-center mt-3">
-
-                        <a href="${pageContext.request.contextPath}/forgot-password">
-
-                            Forgot password?
-
-                        </a>
-
+                <form action="${pageContext.request.contextPath}/login" method="post">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">ID hoặc Email:</label>
+                        <input name="id" class="form-control" value="${cookie.rememberMe.value}" placeholder="Nhập ID/Email..." required>
                     </div>
-
-                    <div class="text-center mt-2">
-
-                        <a href="${pageContext.request.contextPath}/register">
-
-                            Create account
-
-                        </a>
-
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Mật khẩu:</label>
+                        <input name="password" type="password" class="form-control" placeholder="Nhập mật khẩu..." required>
                     </div>
-
-                </div>
-
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="rememberMe" id="rememberMe" ${not empty cookie.rememberMe.value ? 'checked' : ''}>
+                        <label class="form-check-label small" for="rememberMe">
+                            Ghi nhớ tài khoản
+                        </label>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary fw-bold py-2 rounded-pill">Đăng nhập</button>
+                        <a href="${pageContext.request.contextPath}/forgot-password" class="btn btn-link text-decoration-none small">Quên mật khẩu?</a>
+                    </div>
+                </form>
             </div>
-
         </div>
-
     </div>
-
-</div>
-
-<jsp:include page="/views/layout/footer.jsp"/>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
