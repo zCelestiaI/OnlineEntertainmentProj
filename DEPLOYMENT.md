@@ -13,7 +13,7 @@ The repository now includes a multi-stage `Dockerfile`, `render.yaml` (Render Fr
 ## Prerequisites
 
 1. An Azure subscription eligible for Azure SQL Database Free, with a database and SQL-login credentials.
-2. SQL schema and demo data for the `Users`, `Video`, `Favorite`, and `Share` entities. **No schema/seed script is currently committed**. Hibernate runs with `hbm2ddl.auto=validate`.
+2. Run [`database/schema.sql`](database/schema.sql) against an empty SQL Server/Azure SQL database to create the `Users`, `Video`, `Favorite`, and `Share` tables. This script intentionally includes no sample users. Hibernate runs with `hbm2ddl.auto=validate`.
 3. A Render account connected to this GitHub repository.
 4. **Rotated database credentials**. Earlier Git history contained a hardcoded password. Removing it from the latest commit does not invalidate that credential.
 
