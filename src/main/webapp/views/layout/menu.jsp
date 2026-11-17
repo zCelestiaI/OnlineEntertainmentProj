@@ -32,7 +32,7 @@
             <!-- Search Bar -->
             <form class="d-flex search-box" action="${pageContext.request.contextPath}/home" method="get">
                 <div class="input-group">
-                    <input class="form-control" type="search" name="keyword" placeholder="Tìm kiếm phim..." value="${param.keyword}">
+                    <input class="form-control" type="search" name="keyword" placeholder="Tìm kiếm video..." value="${param.keyword}">
                     <button class="btn btn-outline-warning" type="submit">Search</button>
                 </div>
             </form>
@@ -41,6 +41,8 @@
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/home">Home</a></li>
                 <c:if test="${not empty currentUser}">
                     <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/chat">Community Chat</a></li>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/studio">Đăng video</a></li>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/channel?id=${currentUser.id}">Kênh của tôi</a></li>
                     <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/favorite">My Favorites</a></li>
                     <c:if test="${currentUser.admin}">
                         <li class="nav-item border-start ms-2 ps-2">
@@ -67,6 +69,7 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow">
                                     <li><a class="dropdown-item" href="${pageContext.request.contextPath}/profile">My Profile</a></li>
+                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/studio">Creator Studio</a></li>
                                     <li><a class="dropdown-item" href="${pageContext.request.contextPath}/change-password">Change Password</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/logout">Logout</a></li>
