@@ -69,7 +69,6 @@ public class Video {
 
     @Transient
     public String getYoutubeId() {
-        if ("CLOUDINARY".equals(sourceType)) return null;
         String source = sourceUrl == null ? "" : sourceUrl;
         Matcher m = YOUTUBE_ID.matcher(source);
         if (m.find()) return m.group(1);

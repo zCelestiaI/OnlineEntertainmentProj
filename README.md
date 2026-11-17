@@ -1,81 +1,70 @@
-# Online Entertainment – Java Web
+# Online Entertainment — Java Web Video Platform
 
-An academic video-entertainment web application with user-facing video browsing, account management, favorites, an administrator dashboard, and a community-chat demonstration.
+A portfolio-oriented video discovery and creator-channel MVP built with Java Servlet/JSP, Hibernate/JPA, SQL Server, and Tomcat.
 
-**Status:** source-code portfolio project. This is **not yet a public, production-ready video-upload platform**. Videos are currently managed by the administrator; user-created channels, direct video uploads and video storage/transcoding are not implemented in this version.
+## How videos work
 
-## Features implemented
+**YouTube URLs are the single publishing source.** Users do **not** upload video files to this application's server.
 
-- Registration, login/logout, user profile, password-management pages and session-based Admin/User authorization.
-- Search and pagination on the public video listing; view video details and record view counts.
-- Like/unlike videos and browse a user's favorites.
-- Admin CRUD for videos and user accounts.
-- Reports for favorites, users who liked videos, and recorded shares.
-- WebSocket community-chat prototype: `ChatController`, `JsonChatServerEndpoint` and `json-chat.js` are included in the source tree. It is a prototype rather than a hardened production chat system.
-- Share-history recording. **Email sending is not implemented yet**: `EmailUtil.send()` prints a message in the console.
+1. Register a free account, which also creates a personal channel.
+2. Visit **Creator Studio** at `/studio`.
+3. Paste a valid `https://youtube.com/watch?v=...`, `https://youtu.be/...`, Shorts, Live, or Embed link.
+4. Enter a title and description. The app extracts the YouTube video ID, saves a canonical YouTube URL, and **automatically generates a thumbnail URL** using `img.youtube.com/vi/{id}/hqdefault.jpg`. An HTTPS custom thumbnail can be supplied.
+5. A public channel page lists the user's videos. Visitors watch them in an embedded YouTube iframe, directly on Online Entertainment.
+
+The website stores **only video metadata and YouTube references** in SQL Server. Video hosting, streaming, and transcoding remain on YouTube; the app neither copies nor rehosts the media. This MVP does **not** use Cloudinary or any object-storage account.
+
+**Important:** Embedding is subject to each video's visibility, YouTube embedding restrictions, copyright, and YouTube availability. Sharing an existing YouTube URL in a personal channel is not a YouTube upload or proof of ownership of that video.
+
+## Features
+
+- Registration, login by username or email, logout, optional remember-username cookie, password changes.
+- Password hashing via salted PBKDF2-HMAC-SHA256, with migration for legacy plaintext student demo accounts.
+- Create/edit a channel display name and description.
+- Creator Studio: create/edit/delete **your own** YouTube-linked videos and toggle visibility.
+- Public channels, home video discovery, search and pagination.
+- Embedded YouTube playback, view counts, recommended videos, favorites/likes, recorded shares.
+- Administrator dashboard, user and video management, favorites/share reports.
+- WebSocket chat prototype using a Jackson-based `MessageEncoder` and `MessageDecoder`.
+
+Not yet implemented: native video upload, subscriptions, comments, transcoding, recommendation algorithms, real email sending, and production-grade content moderation. This is a student demo, not a fully operational YouTube replacement.
 
 ## Tech stack
 
-| Component | Technology |
+| Layer | Technology |
 | --- | --- |
-| Server-side | Java 11, Jakarta Servlet 6, JSP/JSTL |
-| Persistence | Hibernate 6.4 / JPA |
-| Database | Microsoft SQL Server |
-| Build & packaging | Maven, WAR |
-| Web server | Apache Tomcat 10.1 |
-| Frontend | Bootstrap, JavaScript |
-| Real-time prototype | Jakarta WebSocket, Jackson |
+| Backend | Java 11, Jakarta Servlet 6.0, JSP/JSTL |
+| Persistence | Hibernate ORM 6.4, Jakarta Persistence (JPA) |
+| Database | Microsoft SQL Server / Azure SQL |
+| Frontend | Bootstrap 5, HTML/CSS, JavaScript |
+| Chat prototype | Jakarta WebSocket, Jackson JSON encoder/decoder |
+| Build/hosting | Maven, WAR, Apache Tomcat 10.1, Docker/Render |
 
-This application is **not Spring Boot**.
+## Run locally
 
-## Source layout
+Prerequisites: JDK 11+, Maven or Maven Wrapper, Tomcat 10.1, SQL Server.
 
-```text
-src/main/
-├── java/com/example/java4main/
-│   ├── controller/     # Servlet controllers and administration
-│   ├── dao/            # Data access
-│   ├── dto/            # Transfer objects
-│   ├── entity/         # User, Video, Favorite, Share
-│   ├── filter/         # Login and role checks
-│   ├── service/        # Business operations
-│   ├── utils/          # JPA, session, cookie, email placeholder
-│   └── websocket/      # Community-chat prototype
-├── resources/META-INF/persistence.xml
-└── webapp/             # JSP views, JavaScript, WEB-INF
-```
-
-## Running locally without IntelliJ
-
-Requirements: **JDK 11+**, **Tomcat 10.1**, **SQL Server** with database `PolyOE`, and the four tables mapped by the entities.
-
-1. Prepare a SQL Server or Azure SQL database and run [`database/schema.sql`](database/schema.sql). This creates the four mapped tables (without seed accounts). Hibernate uses `hbm2ddl.auto=validate`, so the schema must exist first.
-2. Set environment variables (PowerShell example):
+- **New empty database:** Create `PolyOE` and run [`database/schema.sql`](database/schema.sql).
+- **Existing database from the Java 4 coursework:** Back it up, then run [`database/migrate_youtube_mvp.sql`](database/migrate_youtube_mvp.sql). Do not recreate the tables or run an empty-database script on live data.
+- Configure DB access via environment variables, for example in PowerShell:
 
 ```powershell
 $env:DB_URL = 'jdbc:sqlserver://localhost:1433;databaseName=PolyOE;encrypt=true;trustServerCertificate=true'
 $env:DB_USER = 'your-db-user'
 $env:DB_PASSWORD = 'your-db-password'
-```
-
-3. Package the application:
-
-```powershell
 .\mvnw.cmd clean package
 ```
 
-4. Copy `target/Java4Main-1.0-SNAPSHOT.war` into Tomcat's `webapps/` directory. Start Tomcat and visit `http://localhost:8080/Java4Main-1.0-SNAPSHOT/home`.
+- Deploy `target/Java4Main-1.0-SNAPSHOT.war` to Tomcat 10.1's `webapps` directory; open `http://localhost:8080/Java4Main-1.0-SNAPSHOT/home`.
 
-## Hosting and security notes
+## Deploy a public demo
 
-- The app needs a database reachable by the remote Tomcat instance; `localhost` on a cloud host will **not** refer to your laptop.
-- Credentials are read from `DB_URL`, `DB_USER`, and `DB_PASSWORD` in the current source. **Rotate any database password previously committed to Git**, as Git history retains old credentials.
-- New passwords are salted and hashed using PBKDF2-HMAC-SHA256. Legacy plaintext passwords are upgraded after a successful login. Run [`database/migrate_password_column.sql`](database/migrate_password_column.sql) before updating an existing database. Additional security reviews (CSRF, WebSocket auth, rate limiting) are still needed before public signup.
-- `ShareController` still references a localhost URL; replace this with the deployment base URL.
-- The repository includes [`database/schema.sql`](database/schema.sql), [`Dockerfile`](Dockerfile) and [`render.yaml`](render.yaml). There is still **no verified live deployment URL**. Read [`DEPLOYMENT.md`](DEPLOYMENT.md) before deploying.
-- The WebSocket chat is a prototype, with production authentication, rate limiting and moderation still needed.
-- The project currently links to YouTube media/thumbnails and does **not** contain end-user video channels or file-upload/transcoding functionality.
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) for Render + Azure SQL steps. The repo contains a `Dockerfile`, Render blueprint, and GitHub Actions build verification. There is **not yet a verified live hosting URL**.
+
+Before opening access to real users, rotate any previously committed DB passwords, remove the weak coursework demo credentials (`admin/123`, `user/123`), and review authorization, WebSocket access, CSRF defenses, and rate limiting.
 
 ## Portfolio
 
-Repository author: [@zCelestiaI](https://github.com/zCelestiaI). This project was developed for Java Web coursework and demonstrates Servlet routes, role checks, Hibernate persistence, DAO/service structure, and administrative reports.
+Created for Java Web coursework and expanded as a personal Java Web portfolio project.
+
+GitHub: [@zCelestiaI](https://github.com/zCelestiaI)

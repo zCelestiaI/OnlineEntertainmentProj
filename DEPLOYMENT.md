@@ -1,45 +1,51 @@
-# Deployment guide (preparation, not a live deployment)
+# Deploy Online Entertainment (YouTube-link MVP)
 
-The repository now includes a multi-stage `Dockerfile`, `render.yaml` (Render Free), and a GitHub Actions build workflow.
+The application uses **YouTube links for all video posts**. It does **not** upload, store, or transcode video files. You need only the Java web host and SQL Server-compatible database: **no Cloudinary, object storage or YouTube API key is required** for video embeds and thumbnails.
 
-**Important:** The project is a student portfolio application and is **not yet safe for unrestricted public registration**. New passwords use PBKDF2 hashing, but old accounts may require migration. Review authorization, CSRF and input validation, protect the chat endpoint, and configure rate limits before opening registration.
+## Components
 
-## Suggested demo architecture
+- **App:** Render Free Docker service, Tomcat 10.1 serving `ROOT.war`.
+- **Database:** Azure SQL Database Free (if the account is eligible), or another accessible SQL Server instance. Database usage and free quotas follow the provider's current terms.
+- **Media:** `youtube.com` embedded iframe playback and `img.youtube.com` thumbnails.
 
-- **Java Web:** Render Free + Docker + Tomcat 10.1, deployed as `ROOT.war`.
-- **Database:** Azure SQL Database Free (Microsoft SQL Server compatible); configure firewall so your Render web service can connect.
-- **Media:** The current application stores video metadata and YouTube poster URLs. It does **not** yet implement user-generated channels, direct video uploads, video transcoding or media storage.
+## Database setup
 
-## Prerequisites
+1. Create a new empty SQL Server/Azure SQL database.
+2. Execute [`database/schema.sql`](database/schema.sql) in the database. The script matches the application's JPA mappings, including channel name and video owner.
+3. **For an existing Java 4 `PolyOE` database instead, back it up and execute [`database/migrate_youtube_mvp.sql`](database/migrate_youtube_mvp.sql)**. Do not drop the original tables.
+4. The app uses Hibernate `hbm2ddl.auto=validate` and does not create tables itself.
+5. Do **not** publish legacy course-demo accounts using `admin/123` or `user/123`; reset these first.
 
-1. An Azure subscription eligible for Azure SQL Database Free, with a database and SQL-login credentials.
-2. Run [`database/schema.sql`](database/schema.sql) against an empty SQL Server/Azure SQL database to create the `Users`, `Video`, `Favorite`, and `Share` tables. This script intentionally includes no sample users. Hibernate runs with `hbm2ddl.auto=validate`.
-3. A Render account connected to this GitHub repository.
-4. **Rotated database credentials**. Earlier Git history contained a hardcoded password. Removing it from the latest commit does not invalidate that credential.
+## Render
 
-## Deploy a demo after preparing the database
-
-1. Set up Azure SQL Database and make sure the database's network rules allow the app to connect.
-2. In Render, choose **New → Blueprint**, connect this repository and select the `render.yaml` file.
-3. Choose the free service and set the secret environment values:
+1. Connect the repository to Render, choose **New → Blueprint**, and select `render.yaml`.
+2. Set secret environment variables:
    - `DB_URL`: `jdbc:sqlserver://YOUR-SERVER.database.windows.net:1433;databaseName=YOUR-DB;encrypt=true;trustServerCertificate=false`
-   - `DB_USER`: the SQL username for Azure SQL
-   - `DB_PASSWORD`: the rotated SQL password
-4. Render builds a Docker image from the `Dockerfile` and serves Tomcat on port `8080`.
-5. On successful startup and database connection, open `https://YOUR-RENDER-DOMAIN.onrender.com/home`.
-6. Test login, logout, search, favorites, admin pages, reports, and WebSocket chat. Test again after waking a sleeping free instance.
+   - `DB_USER`: database user
+   - `DB_PASSWORD`: your rotated database password
+3. Allow database network access from the web service according to the database host's firewall controls. Restrict access where possible.
+4. Deploy. The `Dockerfile` builds a Maven WAR and starts Tomcat 10.1, listening on port 8080.
+5. When running, open `https://YOUR-RENDER-DOMAIN.onrender.com/home`.
 
-**The URL above is an example, not an actual deployed URL.** This repository's presence on GitHub does not mean a public website already exists.
+The URL is illustrative. Deployment has not been performed or verified from this repository yet.
 
-## Before going public
+## Test checklist
 
-- New passwords use PBKDF2-HMAC-SHA256. For existing databases run [`database/migrate_password_column.sql`](database/migrate_password_column.sql) first, and reset or migrate legacy plaintext accounts. Plan stronger overall account security before public signup.
-- Remove development credentials from Git history where practical, and **rotate all credentials regardless**.
-- Implement server-side validation, CSRF protection where applicable, secure session-cookie attributes, and authorization checks on all mutations.
-- Replace hardcoded `localhost:8080` sharing links with the actual public URL.
-- Make email sending real or clearly disable the feature.
-- Review WebSocket authentication and connection/message limits.
-- Provide a reproducible SQL initialization script with synthetic data.
-- Add channels, an uploader role model, object storage, media processing, moderation and abuse prevention before claiming YouTube-like user uploads.
+- Register, log in with username or email, log out, and use remember-username.
+- Create/edit a personal channel at `/studio` and visit `/channel?id=USERNAME`.
+- Paste a YouTube Watch / Shorts / Live / short URL to create a video.
+- Confirm automatic thumbnail generation, title/description, embedded playback, search and visibility.
+- Edit or delete **your own** video; confirm another user cannot do either.
+- Verify existing admin-created videos still show up after SQL migration.
+- Test favorites, recorded shares, reports, and WebSocket chat.
 
-For an internship CV, it is accurate to link the GitHub repository as a **Java Servlet/JSP application with an admin panel and chat prototype**, even before public hosting.
+## Known limitations and precautions
+
+- YouTube can restrict embedding for certain videos, and removed/private videos cannot play.
+- The app stores your own metadata and URL, **not** the original video bytes.
+- A working video link proves successful embedding, not video ownership.
+- An email-sending helper is currently a console placeholder; a sharing URL may still be localhost in legacy code.
+- Git history previously contained database credentials; **rotate them** even though current configuration uses environment variables.
+- Password hashing has been implemented, but unrestricted public registration still requires additional security review, input validation, CSRF mitigation, WebSocket authentication, spam controls and monitoring.
+
+For the internship CV, describe this truthfully as a **Java Servlet/JSP video-sharing and channel-management platform with YouTube embedding** rather than a native video-hosting service.

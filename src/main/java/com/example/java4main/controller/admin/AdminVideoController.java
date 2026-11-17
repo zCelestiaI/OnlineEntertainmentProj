@@ -6,13 +6,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.example.java4main.utils.YouTubeUtil;
 
 @WebServlet("/admin/video")
 public class AdminVideoController extends HttpServlet {
-    private static final Pattern YOUTUBE = Pattern.compile(
-            "(?:[?&]v=|youtu\\.be/|/embed/|/shorts/)([A-Za-z0-9_-]{11})");
     private final VideoService videos = new VideoService();
 
     @Override
@@ -63,21 +60,24 @@ public class AdminVideoController extends HttpServlet {
         video.setActive(request.getParameter("active") != null);
         String youtubeUrl = request.getParameter("youtubeUrl");
         if (youtubeUrl != null && !youtubeUrl.isBlank()) {
-            Matcher matcher = YOUTUBE.matcher(youtubeUrl);
-            if (!matcher.find()) {
+            String youtubeId = YouTubeUtil.extractId(youtubeUrl);
+            if (youtubeId == null) {
                 response.sendError(400, "Please use a valid YouTube URL");
                 return;
             }
-            String youtubeId = matcher.group(1);
             video.setSourceType("YOUTUBE");
-            video.setSourceUrl("https://www.youtube.com/watch?v=" + youtubeId);
-            video.setPoster("https://img.youtube.com/vi/" + youtubeId + "/hqdefault.jpg");
+            video.setSourceUrl(YouTubeUtil.canonicalUrl(youtubeId));
+            video.setPoster(YouTubeUtil.thumbnailUrl(youtubeId));
         }
         String poster = request.getParameter("poster");
         if (poster != null && poster.startsWith("https://") && poster.length() <= 255) {
             video.setPoster(poster);
         }
         // Existing video uploader, source, and createdAt are preserved on admin updates.
+        if (creating && (video.getSourceUrl() == null || video.getSourceUrl().isBlank())) {
+            response.sendError(400, "New videos require a YouTube link");
+            return;
+        }
         if (creating) videos.create(video);
         else videos.update(video);
         response.sendRedirect(request.getContextPath() + "/admin/video");

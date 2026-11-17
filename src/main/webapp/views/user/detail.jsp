@@ -6,7 +6,6 @@
 <style>body{background:#f6f8fb}.player{background:#000;border-radius:14px;overflow:hidden}.side-thumb{width:148px;height:83px;object-fit:cover;border-radius:8px}</style>
 </head><body><jsp:include page="../layout/menu.jsp"/><main class="container py-4"><div class="row g-4"><div class="col-lg-8">
 <div class="ratio ratio-16x9 player"><c:choose>
-<c:when test="${video.sourceType eq 'CLOUDINARY' and not empty video.sourceUrl}"><video controls playsinline preload="metadata" src="<c:out value='${video.sourceUrl}'/>"></video></c:when>
 <c:when test="${not empty youtubeId}"><iframe src="https://www.youtube-nocookie.com/embed/${youtubeId}" title="Video" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></c:when>
 <c:otherwise><div class="text-white d-flex justify-content-center align-items-center">Video hiện chưa có nguồn phát.</div></c:otherwise>
 </c:choose></div><h1 class="h3 fw-bold mt-3"><c:out value="${video.title}"/></h1>
