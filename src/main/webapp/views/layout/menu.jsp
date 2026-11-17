@@ -32,7 +32,7 @@
             <!-- Search Bar -->
             <form class="d-flex search-box" action="${pageContext.request.contextPath}/home" method="get">
                 <div class="input-group">
-                    <input class="form-control" type="search" name="keyword" placeholder="Tìm kiếm video..." value="${param.keyword}">
+                    <input class="form-control" type="search" name="keyword" placeholder="Tìm kiếm video..." value="<c:out value='${param.keyword}'/>">
                     <button class="btn btn-outline-warning" type="submit">Search</button>
                 </div>
             </form>
