@@ -35,7 +35,8 @@ public class AdminUserController extends HttpServlet {
         if ("delete".equals(action)) {
             userService.delete(id);
         } else {
-            User user = new User();
+            User user = userService.findById(id);
+            if (user == null) user = new User();
             user.setId(id);
             user.setPassword(request.getParameter("password"));
             user.setFullname(request.getParameter("fullname"));

@@ -3,6 +3,7 @@ services:
     name: online-entertainment-java-demo
     runtime: docker
     plan: free
+    healthCheckPath: /health
     envVars:
       - key: PORT
         value: "8080"
