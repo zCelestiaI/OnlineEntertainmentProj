@@ -48,3 +48,7 @@ target/
 .env.*
 *.bak
 *.bacpac
+
+# Local backup archives, not source files
+*.zip
+*.7z
