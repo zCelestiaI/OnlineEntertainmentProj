@@ -27,6 +27,9 @@ public class UserService {
     }
 
     public User create(User user) {
+        if (user.getPassword() == null || user.getPassword().length() < 8) {
+            throw new IllegalArgumentException("New password must contain at least 8 characters");
+        }
         user.setPassword(PasswordUtil.hash(user.getPassword()));
         return userDAO.create(user);
     }
@@ -36,6 +39,9 @@ public class UserService {
         if (previous != null && (user.getPassword() == null || user.getPassword().isBlank())) {
             user.setPassword(previous.getPassword());
         } else if (!PasswordUtil.isHash(user.getPassword())) {
+            if (user.getPassword() == null || user.getPassword().length() < 8) {
+                throw new IllegalArgumentException("New password must contain at least 8 characters");
+            }
             user.setPassword(PasswordUtil.hash(user.getPassword()));
         }
         return userDAO.update(user);
