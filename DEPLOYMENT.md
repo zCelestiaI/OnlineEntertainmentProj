@@ -25,7 +25,8 @@ The application uses **YouTube links for all video posts**. It does **not** uplo
    - `DB_PASSWORD`: your rotated database password
 3. Allow database network access from the web service according to the database host's firewall controls. Restrict access where possible.
 4. Deploy. The `Dockerfile` builds a Maven WAR and starts Tomcat 10.1, listening on port 8080.
-5. When running, open `https://YOUR-RENDER-DOMAIN.onrender.com/home`.
+5. Verify `GET /health` returns HTTP 200 with `{"status":"ok","database":"connected"}`. HTTP 503 indicates the database is unreachable.
+6. When running, open `https://YOUR-RENDER-DOMAIN.onrender.com/home`.
 
 The URL is illustrative. Deployment has not been performed or verified from this repository yet.
 

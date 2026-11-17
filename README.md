@@ -59,7 +59,7 @@ $env:DB_PASSWORD = 'your-db-password'
 
 ## Deploy a public demo
 
-See [`DEPLOYMENT.md`](DEPLOYMENT.md) for Render + Azure SQL steps. The repo contains a `Dockerfile`, Render blueprint, and GitHub Actions build verification. There is **not yet a verified live hosting URL**.
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) for Render + Azure SQL steps. The repo contains a `Dockerfile`, Render blueprint, and GitHub Actions build verification. There is **not yet a verified live hosting URL**. The `/health` endpoint checks whether the SQL Server database is connected.
 
 Before opening access to real users, rotate any previously committed DB passwords, remove the weak coursework demo credentials (`admin/123`, `user/123`), and review authorization, WebSocket access, CSRF defenses, and rate limiting.
 
