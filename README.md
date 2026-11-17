@@ -35,7 +35,7 @@ Not yet implemented: native video upload, subscriptions, comments, transcoding, 
 | --- | --- |
 | Backend | Java 11, Jakarta Servlet 6.0, JSP/JSTL |
 | Persistence | Hibernate ORM 6.4, Jakarta Persistence (JPA) |
-| Database | Microsoft SQL Server / Azure SQL |
+| Database | Microsoft SQL Server / Azure SQL; PostgreSQL for optional free demo |
 | Frontend | Bootstrap 5, HTML/CSS, JavaScript |
 | Chat prototype | Jakarta WebSocket, Jackson JSON encoder/decoder |
 | Build/hosting | Maven, WAR, Apache Tomcat 10.1, Docker/Render |
@@ -68,3 +68,7 @@ Before opening access to real users, rotate any previously committed DB password
 Created for Java Web coursework and expanded as a personal Java Web portfolio project.
 
 GitHub: [@zCelestiaI](https://github.com/zCelestiaI)
+
+## Optional PostgreSQL demo hosting
+
+The application retains SQL Server as its academic-project database. For a temporary free demo, it also accepts a JDBC PostgreSQL URL. Use `DB_SCHEMA_MODE=update` **only for a new, empty demo database** so Hibernate creates its mapped tables; SQL Server defaults to `validate`. Use `DB_URL=jdbc:postgresql://HOST:5432/DATABASE?sslmode=require`, plus `DB_USER` and `DB_PASSWORD`. Never commit real connection credentials. PostgreSQL avoids an Azure subscription, but Render web hosting may still require payment verification. This setting is not an automatic SQL Server data migration.
