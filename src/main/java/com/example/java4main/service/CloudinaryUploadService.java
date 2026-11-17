@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HexFormat;
 import java.util.UUID;
 
 /**
@@ -24,7 +23,15 @@ public class CloudinaryUploadService {
     private static final int MAX_SIZE = 15 * 1024 * 1024;
     private static final ObjectMapper JSON = new ObjectMapper();
 
-    public record UploadedMedia(String url, String thumbnailUrl) {}
+    public static final class UploadedMedia {
+        private final String url;
+        private final String thumbnailUrl;
+        public UploadedMedia(String url, String thumbnailUrl) {
+            this.url = url; this.thumbnailUrl = thumbnailUrl;
+        }
+        public String url() { return url; }
+        public String thumbnailUrl() { return thumbnailUrl; }
+    }
 
     public static boolean configured() {
         return valid(System.getenv("CLOUDINARY_CLOUD_NAME"))
@@ -89,7 +96,9 @@ public class CloudinaryUploadService {
         try {
             byte[] bytes = MessageDigest.getInstance("SHA-1")
                     .digest((params + secret).getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(bytes);
+            StringBuilder hex = new StringBuilder(bytes.length * 2);
+            for (byte b : bytes) hex.append(String.format("%02x", b & 0xff));
+            return hex.toString();
         } catch (Exception e) { throw new IllegalStateException(e); }
     }
 
