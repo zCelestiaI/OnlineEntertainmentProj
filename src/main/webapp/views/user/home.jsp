@@ -20,6 +20,14 @@
     <jsp:include page="../layout/menu.jsp" />
 
     <div class="container py-4">
+        <c:if test="${not empty currentUser}">
+            <div class="d-flex justify-content-end mb-3">
+                <a href="${pageContext.request.contextPath}/chat" class="btn btn-warning fw-semibold">
+                    <i class="bi bi-chat-dots-fill me-1"></i>Community Chat
+                </a>
+            </div>
+        </c:if>
+
         <div class="row g-4">
             <c:forEach var="v" items="${videos}">
                 <div class="col-lg-4 col-md-6">

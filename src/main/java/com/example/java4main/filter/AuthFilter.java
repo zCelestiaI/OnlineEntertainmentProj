@@ -12,6 +12,7 @@ import java.io.IOException;
 @WebFilter({
         "/favorite/*",
         "/share/*",
+        "/chat",
         "/profile/*",
         "/change-password/*"
 })

@@ -12,6 +12,7 @@ import java.io.IOException;
 public class ReportController extends HttpServlet {
     private final ReportDAOImpl reportDAO = new ReportDAOImpl();
 
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

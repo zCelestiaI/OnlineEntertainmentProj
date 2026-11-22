@@ -1,0 +1,11 @@
+.git
+.idea
+out
+target
+*.zip
+*.war
+*.class
+*.bak
+*.bacpac
+.env
+.env.*
