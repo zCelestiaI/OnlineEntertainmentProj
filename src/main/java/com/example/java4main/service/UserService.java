@@ -15,7 +15,7 @@ public class UserService {
 
     public User login(String id, String password) {
         if (id == null || password == null) return null;
-        User user = userDAO.findById(id);
+        User user = id.contains("@") ? userDAO.findByEmail(id.toLowerCase()) : userDAO.findById(id);
         if (user == null || !PasswordUtil.matches(password, user.getPassword())) return null;
 
         // Upgrade plaintext passwords from the previous academic project on login.

@@ -1,48 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - Online Entertainment</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-</head>
-<body class="bg-light">
-    <jsp:include page="../layout/menu.jsp" />
-
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-4 card p-4 shadow-sm border-0 rounded-4">
-                <h3 class="text-center mb-4 fw-bold text-primary">ĐĂNG NHẬP</h3>
-
-                <c:if test="${not empty message}">
-                    <div class="alert alert-danger py-2 small">${message}</div>
-                </c:if>
-
-                <form action="${pageContext.request.contextPath}/login" method="post">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">ID hoặc Email:</label>
-                        <input name="id" class="form-control" value="${cookie.rememberMe.value}" placeholder="Nhập ID/Email..." required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Mật khẩu:</label>
-                        <input name="password" type="password" class="form-control" placeholder="Nhập mật khẩu..." required>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" name="rememberMe" id="rememberMe" ${not empty cookie.rememberMe.value ? 'checked' : ''}>
-                        <label class="form-check-label small" for="rememberMe">
-                            Ghi nhớ tài khoản
-                        </label>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-primary fw-bold py-2 rounded-pill">Đăng nhập</button>
-                        <a href="${pageContext.request.contextPath}/forgot-password" class="btn btn-link text-decoration-none small">Quên mật khẩu?</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng nhập - Online Entertainment</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+</head><body class="bg-light"><jsp:include page="../layout/menu.jsp"/>
+<main class="container py-5"><div class="row justify-content-center"><div class="col-md-5 col-lg-4">
+<div class="card border-0 shadow-sm rounded-4 p-4"><h1 class="h3 fw-bold mb-4">Đăng nhập</h1>
+<c:if test="${param.registered eq '1'}"><div class="alert alert-success">Đăng ký thành công. Hãy đăng nhập để quản lý kênh.</div></c:if>
+<c:if test="${not empty message}"><div class="alert alert-danger"><c:out value="${message}"/></div></c:if>
+<form method="post" action="${pageContext.request.contextPath}/login">
+<label class="form-label">Tên đăng nhập hoặc email</label>
+<input class="form-control mb-3" name="id" autocomplete="username" placeholder="Username / email" value="<c:out value='${cookie.rememberMe.value}'/>" required>
+<label class="form-label">Mật khẩu</label><input class="form-control mb-3" type="password" name="password" autocomplete="current-password" required>
+<label class="form-check mb-3"><input class="form-check-input" type="checkbox" name="rememberMe" ${not empty cookie.rememberMe.value ? 'checked' : ''}>
+<span class="form-check-label">Ghi nhớ tên đăng nhập trên thiết bị này</span></label>
+<button class="btn btn-primary w-100 py-2" type="submit">Đăng nhập</button>
+<div class="text-center mt-3"><a href="${pageContext.request.contextPath}/forgot-password">Quên mật khẩu?</a></div>
+<p class="small text-muted text-center mt-2">Chưa có tài khoản? <a href="${pageContext.request.contextPath}/register">Đăng ký</a></p>
+</form></div></div></div></main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

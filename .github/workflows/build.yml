@@ -17,6 +17,6 @@ jobs:
           java-version: '17'
           cache: maven
       - name: Package Java Web WAR
-        run: mvn -B -DskipTests package
+        run: mvn -B verify
       - name: Verify Docker image for Render
         run: docker build --tag online-entertainment:ci .
