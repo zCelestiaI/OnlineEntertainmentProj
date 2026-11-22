@@ -18,7 +18,9 @@
 <c:otherwise><span class="text-muted">Online Entertainment</span></c:otherwise></c:choose></div>
 <div class="text-muted small mt-1">${v.views} lượt xem</div></div></div></div></c:forEach></div>
 <c:if test="${totalPages > 1}"><nav class="mt-4"><ul class="pagination justify-content-center">
-<li class="page-item ${currentPage <= 1 ? 'disabled' : ''}"><a class="page-link" href="?page=${currentPage - 1}">Trước</a></li>
+<c:url value="/home" var="prevPageUrl"><c:param name="page" value="${currentPage - 1}"/><c:param name="keyword" value="${param.keyword}"/></c:url>
+<li class="page-item ${currentPage <= 1 ? 'disabled' : ''}"><a class="page-link" href="<c:out value='${prevPageUrl}'/>">Trước</a></li>
 <li class="page-item active"><span class="page-link">${currentPage} / ${totalPages}</span></li>
-<li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}"><a class="page-link" href="?page=${currentPage + 1}">Sau</a></li>
+<c:url value="/home" var="nextPageUrl"><c:param name="page" value="${currentPage + 1}"/><c:param name="keyword" value="${param.keyword}"/></c:url>
+<li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}"><a class="page-link" href="<c:out value='${nextPageUrl}'/>">Sau</a></li>
 </ul></nav></c:if></main><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script></body></html>

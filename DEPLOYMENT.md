@@ -1,63 +1,78 @@
-# Deploy Online Entertainment (YouTube-link MVP)
+# Online Entertainment — Deployment Guide
 
-The application uses **YouTube links for all video posts**. It does **not** upload, store, or transcode video files. You need only the Java web host and SQL Server-compatible database: **no Cloudinary, object storage or YouTube API key is required** for video embeds and thumbnails.
+This guide documents the **current public demo**. The application is a Java Servlet/JSP WAR running on Apache Tomcat 10.1. It saves channel/video metadata and user interactions; YouTube provides video playback and thumbnail images.
 
-## Components
+**Live website:** https://online-entertainment-web-production.up.railway.app/
 
-- **App:** Render Free Docker service, Tomcat 10.1 serving `ROOT.war`.
-- **Database:** Azure SQL Database Free (if the account is eligible), or another accessible SQL Server instance. Database usage and free quotas follow the provider's current terms.
-- **Media:** `youtube.com` embedded iframe playback and `img.youtube.com` thumbnails.
+## Current deployment
 
-## Database setup
+| Component | Provider / configuration |
+| --- | --- |
+| Web service | Railway (GitHub-connected deployment, Docker) |
+| Java runtime | Java 17 / Apache Tomcat 10.1 |
+| Application artifact | Maven WAR, deployed as `ROOT.war` |
+| Database | Neon PostgreSQL 16, database `polyoe` |
+| Schema strategy | Existing database tables, `DB_SCHEMA_MODE=validate` |
+| Health check | `GET /health` |
+| Videos | YouTube embeds and thumbnails (no video file storage) |
 
-1. Create a new empty SQL Server/Azure SQL database.
-2. Execute [`database/schema.sql`](database/schema.sql) in the database. The script matches the application's JPA mappings, including channel name and video owner.
-3. **For an existing Java 4 `PolyOE` database instead, back it up and execute [`database/migrate_youtube_mvp.sql`](database/migrate_youtube_mvp.sql)**. Do not drop the original tables.
-4. The app uses Hibernate `hbm2ddl.auto=validate` and does not create tables itself.
-5. Do **not** publish legacy course-demo accounts using `admin/123` or `user/123`; reset these first.
+Hosting free/trial allowances can change or expire; this is **not** an uptime guarantee.
 
-## Render
+## 1. Database preparation
 
-1. Connect the repository to Render, choose **New → Blueprint**, and select `render.yaml`.
-2. Set secret environment variables:
-   - `DB_URL`: `jdbc:sqlserver://YOUR-SERVER.database.windows.net:1433;databaseName=YOUR-DB;encrypt=true;trustServerCertificate=false`
-   - `DB_USER`: database user
-   - `DB_PASSWORD`: your rotated database password
-3. Allow database network access from the web service according to the database host's firewall controls. Restrict access where possible.
-4. Deploy. The `Dockerfile` builds a Maven WAR and starts Tomcat 10.1, listening on port 8080.
-5. Verify `GET /health` returns HTTP 200 with `{"status":"ok","database":"connected"}`. HTTP 503 indicates the database is unreachable.
-6. When running, open `https://YOUR-RENDER-DOMAIN.onrender.com/home`.
+For a **new, empty PostgreSQL database**, execute [`database/postgres_schema.sql`](database/postgres_schema.sql) to create the tables. This script is not a migration and must not be rerun blindly on existing data.
 
-The URL is illustrative. Deployment has not been performed or verified from this repository yet.
+For the currently configured Neon database, the schema already exists. Keep `DB_SCHEMA_MODE=validate` when deploying.
 
-## Test checklist
+The project also supports SQL Server for local coursework. Use [`database/schema.sql`](database/schema.sql) only for a new empty SQL Server database. For upgrading an existing `PolyOE` database, review [`database/migrate_youtube_mvp.sql`](database/migrate_youtube_mvp.sql), and back up first.
 
-- Register, log in with username or email, log out, and use remember-username.
-- Create/edit a personal channel at `/studio` and visit `/channel?id=USERNAME`.
-- Paste a YouTube Watch / Shorts / Live / short URL to create a video.
-- Confirm automatic thumbnail generation, title/description, embedded playback, search and visibility.
-- Edit or delete **your own** video; confirm another user cannot do either.
-- Verify existing admin-created videos still show up after SQL migration.
-- Test favorites, recorded shares, reports, and WebSocket chat.
+## 2. Railway service
 
-## Known limitations and precautions
+1. Connect the repository's `master` branch to a Railway web service.
+2. Build from the included [`Dockerfile`](Dockerfile). It compiles the WAR in a Maven stage and serves it from Tomcat as `ROOT.war`.
+3. Configure **private** service environment variables in Railway (not in Git):
+   - `DB_URL`: `jdbc:postgresql://YOUR-NEON-HOST:5432/polyoe?sslmode=require`
+   - `DB_USER`: PostgreSQL database username
+   - `DB_PASSWORD`: PostgreSQL database password
+   - `DB_SCHEMA_MODE`: `validate`
+4. Use port `8080`, the Tomcat port exposed by the Docker image, and set the health check path to `/health`.
+5. Deploy and check the web-service logs if startup fails.
 
-- YouTube can restrict embedding for certain videos, and removed/private videos cannot play.
-- The app stores your own metadata and URL, **not** the original video bytes.
-- A working video link proves successful embedding, not video ownership.
-- An email-sending helper is currently a console placeholder; a sharing URL may still be localhost in legacy code.
-- Git history previously contained database credentials; **rotate them** even though current configuration uses environment variables.
-- Password hashing has been implemented, but unrestricted public registration still requires additional security review, input validation, CSRF mitigation, WebSocket authentication, spam controls and monitoring.
+Never put actual database credentials in a Markdown document, commit, or public screenshot. If an old password has appeared in Git history, rotate it.
 
-For the internship CV, describe this truthfully as a **Java Servlet/JSP video-sharing and channel-management platform with YouTube embedding** rather than a native video-hosting service.
+## 3. Verify the deployment
 
-## Temporary PostgreSQL option (if Azure SQL is unavailable)
+- `/health`: HTTP 200 and `{"status":"ok","database":"connected"}` when database access succeeds.
+- `/home`: public videos are listed.
+- `/register` and `/login`: account creation and login.
+- `/studio`: after login, update the channel and publish a YouTube URL.
+- `/channel?id=USERNAME`: public channel and visible video posts.
+- `/video?id=VIDEO_ID`: embedded playback if the source video permits embedding.
+- `/favorite`: signed-in account's liked videos.
+- `/chat`: lightweight WebSocket community chat; verify from two authenticated browser sessions.
 
-A separate PostgreSQL instance can host the **metadata only** for this YouTube-link application. Set the following private environment values in the hosting dashboard:
+A successful `/health` response confirms a database query, **not** every application feature.
 
-- `DB_URL`: `jdbc:postgresql://YOUR-PG-HOST:5432/YOUR-DB?sslmode=require`
-- `DB_USER`: PostgreSQL username
-- `DB_PASSWORD`: PostgreSQL password
-- `DB_SCHEMA_MODE`: `update` (only for a brand-new empty demo database; then change to `validate`)
+## 4. CI and build behavior
 
-The application selects PostgreSQLDialect automatically for PostgreSQL URLs. It continues to accept the original SQL Server JDBC URL and SQL Server dialect. Video files still play from YouTube; only metadata is stored. The free hosting provider may require payment-method verification even for a free service. PostgreSQL tables start empty; this does **not** import your existing PolyOE SQL Server data.
+[GitHub Actions](.github/workflows/build.yml) runs `mvn verify`, uploads the built WAR, and checks that the Docker image can build. The Dockerfile currently uses `-DskipTests` during its image build; tests are run by the separate CI job.
+
+The Maven project compiles against Java 11 source/target settings while the Docker builder and Tomcat runtime use JDK 17.
+
+## 5. Troubleshooting
+
+| Symptom | Things to check |
+| --- | --- |
+| HTTP 503 from `/health` | Neon connection values, database availability and deployed schema |
+| WAR fails at startup | Tomcat 10.1 / Servlet 6 compatibility, JDBC environment variables and Hibernate validation |
+| YouTube embed unavailable | Source video visibility, deleted video or YouTube's embed restrictions |
+| WebSocket cannot connect | HTTPS/WSS URL, browser console and Railway/Tomcat application logs |
+| Page is empty or server errors | Service logs, schema compatibility and whether the database has any video records |
+
+## 6. Alternative hosting notes
+
+The repository contains [`render.yaml`](render.yaml) from an earlier **Render** exploration and [`SERV00_DEPLOY.md`](SERV00_DEPLOY.md) for a possible **Serv00** deployment. Neither describes the website currently published on Railway. They are optional reference material, not evidence that those targets are running.
+
+## Project limits
+
+Online Entertainment is a student portfolio MVP. It does not upload or host video files, run transcoding, send automated sharing emails, or implement email password recovery. The chat works as a lightweight real-time prototype but is not presented as a security-hardened messaging platform. Authorization, CSRF safeguards, WebSocket identity checks and broader test coverage remain areas for future improvement.
