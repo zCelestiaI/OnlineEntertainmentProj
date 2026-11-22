@@ -3,6 +3,8 @@ package com.example.java4main.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Nationalized;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -38,7 +40,8 @@ public class Video {
     private Integer views = 0;
 
     @Nationalized
-    @Column(name = "Description", columnDefinition = "nvarchar(max)")
+    @JdbcTypeCode(SqlTypes.LONG32NVARCHAR)
+    @Column(name = "Description")
     private String description;
 
     @Column(name = "Active", nullable = false)

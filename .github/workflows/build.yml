@@ -18,5 +18,12 @@ jobs:
           cache: maven
       - name: Package Java Web WAR
         run: mvn -B verify
+      - name: Upload deployable Tomcat WAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: online-entertainment-war
+          path: target/Java4Main-1.0-SNAPSHOT.war
+          if-no-files-found: error
+          retention-days: 14
       - name: Verify Docker image for Render
         run: docker build --tag online-entertainment:ci .
