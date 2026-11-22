@@ -22,7 +22,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small">Password</label>
-                            <input name="password" type="text" class="form-control" value="${user.password}" required>
+                            <input name="password" type="password" class="form-control" autocomplete="new-password" placeholder="Enter a new password (leave blank when editing)">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small">Fullname</label>

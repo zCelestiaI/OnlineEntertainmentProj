@@ -2,7 +2,7 @@
 
 The repository now includes a multi-stage `Dockerfile`, `render.yaml` (Render Free), and a GitHub Actions build workflow.
 
-**Important:** The project is a student portfolio application and is **not yet safe for unrestricted public registration**. Before inviting users to register, implement secure password hashing, review authorization and input validation, protect the chat endpoint, and configure rate limits.
+**Important:** The project is a student portfolio application and is **not yet safe for unrestricted public registration**. New passwords use PBKDF2 hashing, but old accounts may require migration. Review authorization, CSRF and input validation, protect the chat endpoint, and configure rate limits before opening registration.
 
 ## Suggested demo architecture
 
@@ -33,7 +33,7 @@ The repository now includes a multi-stage `Dockerfile`, `render.yaml` (Render Fr
 
 ## Before going public
 
-- Hash passwords with a modern adaptive KDF (BCrypt/Argon2/PBKDF2); plan a reset/migration for existing plaintext account records.
+- New passwords use PBKDF2-HMAC-SHA256. For existing databases run [`database/migrate_password_column.sql`](database/migrate_password_column.sql) first, and reset or migrate legacy plaintext accounts. Plan stronger overall account security before public signup.
 - Remove development credentials from Git history where practical, and **rotate all credentials regardless**.
 - Implement server-side validation, CSRF protection where applicable, secure session-cookie attributes, and authorization checks on all mutations.
 - Replace hardcoded `localhost:8080` sharing links with the actual public URL.

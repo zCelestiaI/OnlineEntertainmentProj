@@ -3,6 +3,7 @@ package com.example.java4main.controller;
 import com.example.java4main.entity.User;
 import com.example.java4main.service.UserService;
 import com.example.java4main.utils.SessionUtil;
+import com.example.java4main.utils.PasswordUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -32,8 +33,10 @@ public class ChangePasswordController extends HttpServlet {
         String newPass = request.getParameter("newPassword");
         String confirmPass = request.getParameter("confirmPassword");
 
-        if (!user.getPassword().equals(oldPass)) {
+        if (!PasswordUtil.matches(oldPass, user.getPassword())) {
             request.setAttribute("message", "Current password is incorrect.");
+        } else if (newPass == null || newPass.length() < 8) {
+            request.setAttribute("message", "New password must contain at least 8 characters.");
         } else if (!newPass.equals(confirmPass)) {
             request.setAttribute("message", "New password and confirmation do not match.");
         } else {

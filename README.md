@@ -70,7 +70,7 @@ $env:DB_PASSWORD = 'your-db-password'
 
 - The app needs a database reachable by the remote Tomcat instance; `localhost` on a cloud host will **not** refer to your laptop.
 - Credentials are read from `DB_URL`, `DB_USER`, and `DB_PASSWORD` in the current source. **Rotate any database password previously committed to Git**, as Git history retains old credentials.
-- User passwords are currently stored/compared as plain text; implement password hashing and additional security checks before accepting real public accounts.
+- New passwords are salted and hashed using PBKDF2-HMAC-SHA256. Legacy plaintext passwords are upgraded after a successful login. Run [`database/migrate_password_column.sql`](database/migrate_password_column.sql) before updating an existing database. Additional security reviews (CSRF, WebSocket auth, rate limiting) are still needed before public signup.
 - `ShareController` still references a localhost URL; replace this with the deployment base URL.
 - The repository includes [`database/schema.sql`](database/schema.sql), [`Dockerfile`](Dockerfile) and [`render.yaml`](render.yaml). There is still **no verified live deployment URL**. Read [`DEPLOYMENT.md`](DEPLOYMENT.md) before deploying.
 - The WebSocket chat is a prototype, with production authentication, rate limiting and moderation still needed.
